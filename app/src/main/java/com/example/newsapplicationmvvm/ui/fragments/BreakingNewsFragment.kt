@@ -9,12 +9,16 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsapplicationmvvm.R
 import com.example.newsapplicationmvvm.ui.NewsActivity
 import com.example.newsapplicationmvvm.ui.NewsViewModel
+import com.example.newsapplicationmvvm.ui.NewsViewModelProviderFactory
 import com.example.newsapplicationmvvm.ui.adapters.NewsAdapter
+import com.example.newsapplicationmvvm.ui.db.ArticleDatabase
+import com.example.newsapplicationmvvm.ui.repository.NewsRepository
 import com.example.newsapplicationmvvm.ui.util.Resource
 
 
@@ -29,6 +33,9 @@ class BreakingNewsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val newsRepository = NewsRepository(ArticleDatabase(requireActivity()))
+        val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository)
+        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(NewsViewModel::class.java)
 
     }
 
@@ -47,6 +54,16 @@ class BreakingNewsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(NewsViewModel::class.java)
         setupRecyclerView()
+
+        newsAdapter.setOnItemClickListener {
+            val bundle = Bundle().apply {
+                putSerializable("article", it)
+            }
+            findNavController().navigate(
+                R.id.action_breakingNewsFragment_to_articleFragment,
+                bundle
+            )
+        }
 
         viewModel.breakingNews.observe(viewLifecycleOwner, Observer {response ->
             when(response){

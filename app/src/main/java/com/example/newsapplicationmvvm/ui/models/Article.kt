@@ -2,6 +2,7 @@ package com.example.newsapplicationmvvm.ui.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 //@Entity annotation tells android studio that Article class is a table in our database
 @Entity(
@@ -19,4 +20,8 @@ data class Article(
     val title: String,
     val url: String,
     val urlToImage: String
-)
+) : Serializable {
+    override fun hashCode(): Int {
+        return source.hashCode()
+    }
+}
